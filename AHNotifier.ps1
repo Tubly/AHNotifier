@@ -285,7 +285,7 @@ $ahData = @()
 function APIToken {
     $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
     $headers.Add("Content-Type", "application/json")
-    Write-Host "APIKEY: " $apiKey
+    # Write-Host "APIKEY: " $apiKey
     $body = "{`n`"client_id`": `"c260f00d-1071-409a-992f-dda2e5498536`",`n`"grant_type`": `"api_token`",`n`"scope`": `"app:realm-api app:pricing-api`",`n`"token`": `"$apiKey`"`n}"
 
     $response = Invoke-RestMethod 'https://auth.tradeskillmaster.com/oauth2/token' -Method 'POST' -Headers $headers -Body $body
@@ -297,7 +297,7 @@ function APIToken {
 if ($Bearer -eq "") {
     $Bearer = APIToken
 }
-Write-Host "Bearar: "$Bearer
+# Write-Host "Bearar: "$Bearer
 
 # exit
 
@@ -312,7 +312,7 @@ function GetAHId {
 }
 
 $AHID = GetAHId
-Write-Host "AHID: "$AHID
+# Write-Host "AHID: "$AHID
 if (!($bulkMode)) {
     $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
     $headers.Add("Authorization", "Bearer $Bearer")
@@ -321,7 +321,7 @@ if (!($bulkMode)) {
     }
 
     # Stupid epoch time
-    $updatedAt = ((Get-Date 01.01.1970).AddSeconds($ahData[0].LastUpdated)).TolocalTime()
+    $updatedAt = Get-Date
 
 }
 else {
