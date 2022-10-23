@@ -67,6 +67,7 @@ If (!(Test-Path $env:TEMP\AHNotifier_ToastImg.png)) {
 $region = $settings.'server settings'.region
 $server = $settings.'server settings'.server
 $apiKey = $settings.'server settings'.apikey
+$Bearer = ""
 if ($settings.'Server Settings'.BulkMode -eq "Enabled") {$bulkMode = $True} else {$bulkMode = $False}
 
 # notification types
@@ -281,10 +282,42 @@ function AHNotifier {
 
 $ahData = @()
 
-if (!($bulkMode)) {
+function APIToken {
+    $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+    $headers.Add("Content-Type", "application/json")
+    Write-Host "APIKEY: " $apiKey
+    $body = "{`n`"client_id`": `"c260f00d-1071-409a-992f-dda2e5498536`",`n`"grant_type`": `"api_token`",`n`"scope`": `"app:realm-api app:pricing-api`",`n`"token`": `"$apiKey`"`n}"
 
+    $response = Invoke-RestMethod 'https://auth.tradeskillmaster.com/oauth2/token' -Method 'POST' -Headers $headers -Body $body
+    # $response | ConvertTo-Json
+    $blub = $response.access_token
+    return $blub
+}
+
+if ($Bearer -eq "") {
+    $Bearer = APIToken
+}
+Write-Host "Bearar: "$Bearer
+
+# exit
+
+function GetAHId {
+    $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+    $headers.Add("Authorization", "Bearer $Bearer")
+
+    $response = Invoke-RestMethod 'https://realm-api.tradeskillmaster.com/realms-by-name/EU-Antonidas' -Method 'GET' -Headers $headers
+    # $response | ConvertTo-Json
+
+    return $response.auctionHouses.auctionHouseId
+}
+
+$AHID = GetAHId
+Write-Host "AHID: "$AHID
+if (!($bulkMode)) {
+    $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+    $headers.Add("Authorization", "Bearer $Bearer")
     foreach ($item in $items) {
-        $ahData += Invoke-RestMethod -Uri "https://api.tradeskillmaster.com/v1/item/$region/$server/$($item.itemID)?format=json&apiKey=$apiKey"
+        $ahData = Invoke-RestMethod "https://pricing-api.tradeskillmaster.com/ah/$AHID/item/$($item.itemID)" -Method 'GET' -Headers $headers
     }
 
     # Stupid epoch time
@@ -292,7 +325,9 @@ if (!($bulkMode)) {
 
 }
 else {
-    $ahData = Invoke-RestMethod -Uri "https://api.tradeskillmaster.com/v1/item/$region/$($server)?format=json&apiKey=$apiKey"
+    $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+    $headers.Add("Authorization", "Bearer $Bearer")
+    $ahData = Invoke-RestMethod "https://pricing-api.tradeskillmaster.com/ah/$AHID" -Method 'GET' -Headers $headers
     $updatedAt = Get-Date
 }
 
@@ -303,10 +338,10 @@ else {
 # check items for price and create notification if threshold is met
 foreach ($item in $items) {
 
-    $details = $ahData | ? {$_.Id -eq $item.itemID}
-
-    if ($details.Quantity -ge 1) {
+    $details = $ahData | ? {$_.itemId -eq $item.itemID}
         
+    if ($details.Quantity -ge 1) {
+
         if ($item.check -eq "Above") {
 
             if ([int64]$details.MinBuyout -ge [int64]$item.price) {
