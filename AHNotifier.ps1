@@ -363,14 +363,14 @@ foreach ($item in $items) {
                     $setPrice = "$($item.price/100)s" # silver
                 }
 
-                $msg = "AH Alert: $($details.name) is now $($minBuyout). This is above your price of $($setPrice). Updated: $($updatedAt)"
+                $msg = "AH Alert: $($item.Description) is now $($minBuyout). This is above your price of $($setPrice). Updated: $($updatedAt)"
                 
                 # notify
                 AHNotifier
 
             }
             else {
-            # Don't send Alert
+                # Don't send Alert
                 #write-host "$($details.name) is NOT above your set price of $($item.price) - NO ALERT TRIGGERED" -ForegroundColor Red
             }
         }
@@ -396,7 +396,7 @@ foreach ($item in $items) {
                     $setPrice = "$($item.price/100)s" # silver
                 }
 
-                $msg = "AH Alert: $($details.name) is now $($minBuyout). This is below your price of $($setPrice). Updated: $($updatedAt)"
+                $msg = "AH Alert: $($item.Description) is now $($minBuyout). This is below your price of $($setPrice). Updated: $($updatedAt)"
 
                 # notify
                 AHNotifier
