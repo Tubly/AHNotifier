@@ -363,7 +363,7 @@ foreach ($item in $items) {
                     $setPrice = "$($item.price/100)s" # silver
                 }
 
-                $msg = "AH Alert: $($item.Description) is now $($minBuyout). This is above your price of $($setPrice). Updated: $($updatedAt)"
+                $msg = "AH Alert: $($item.Description) is now $($minBuyout). There are $($details.quantity). This is above your price of $($setPrice). Updated: $($updatedAt)"
                 
                 # notify
                 AHNotifier
@@ -396,7 +396,7 @@ foreach ($item in $items) {
                     $setPrice = "$($item.price/100)s" # silver
                 }
 
-                $msg = "AH Alert: $($item.Description) is now $($minBuyout). This is below your price of $($setPrice). Updated: $($updatedAt)"
+                $msg = "AH Alert: $($item.Description) is now $($minBuyout). There are $($details.quantity). This is below your price of $($setPrice). Updated: $($updatedAt)"
 
                 # notify
                 AHNotifier
